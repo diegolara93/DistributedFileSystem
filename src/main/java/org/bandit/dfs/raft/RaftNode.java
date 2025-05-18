@@ -67,6 +67,9 @@ public class RaftNode {
             log.info("Node {} has a higher term than Candidate {} during term {}, election stopped", this.id, id, term);
             return result;
         }
+        /*
+        TODO: later actually check if the log is up to date default to true rn
+         */
         boolean isLogUpToDate = true;
 
         if ((votedFor == null || votedFor == candidateId) && isLogUpToDate ) {
