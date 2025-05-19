@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RequestVoteArgs {
     private int term;
-    private String candidateID;
+    private Integer candidateID;
     private int lastLogIndex;
     private int lastLogTerm;
     public RequestVoteArgs() {}
@@ -13,7 +13,7 @@ public class RequestVoteArgs {
     @JsonCreator
     public RequestVoteArgs(
             @JsonProperty("term") int term,
-            @JsonProperty("candidateID") String candidateID,
+            @JsonProperty("candidateID") Integer candidateID,
             @JsonProperty("lastLogIndex") int lastLogIndex,
             @JsonProperty("lastLogTerm") int lastLogTerm
     ) {
@@ -25,7 +25,7 @@ public class RequestVoteArgs {
     public int getTerm() {
         return term;
     }
-    public String getCandidateID() {
+    public Integer getCandidateID() {
         return candidateID;
     }
     public int getLastLogIndex() {

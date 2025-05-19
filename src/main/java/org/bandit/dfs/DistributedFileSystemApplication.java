@@ -5,6 +5,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @SpringBootApplication
 public class DistributedFileSystemApplication {
 
@@ -17,7 +20,8 @@ public class DistributedFileSystemApplication {
      */
     @Bean
     public RaftNode raftNode() {
-        RaftNode raftNode = new RaftNode();
+        List<RaftNode> peers = new ArrayList<>();
+        RaftNode raftNode = new RaftNode(0, peers);
         return raftNode;
     }
 }
