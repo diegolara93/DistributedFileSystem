@@ -3,9 +3,7 @@ package org.bandit.dfs.raft;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -28,6 +26,9 @@ public class RaftNode {
     RaftRole role = RaftRole.FOLLOWER;
     List<RaftNode> peers;
     private final List<String> entryLog =  new ArrayList<>(); // TODO: MAKE THIS A LIST OF LOG ENTRIES LATER
+    Map<Integer,Integer> nextIndex  = new HashMap<>(); // the next log index to send
+    Map<Integer,Integer> matchIndex = new HashMap<>(); // highest index we know the given peer has replicated
+
 
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor();
@@ -52,6 +53,32 @@ public class RaftNode {
     public void becomeLeader() {
         log.info("Node {} has become the leader during term {}.", id, currentTerm);
         role = RaftRole.LEADER;
+        for (RaftNode p : peers) {
+            nextIndex.put(p.id, entryLog.size());
+            matchIndex.put(p.id, 0);
+        }
+
+        electionTimer.cancel(false);
+
+        // schedule regular heartbeats
+        heartbeatTimer = scheduler.scheduleAtFixedRate(
+                this::sendHeartbeats,
+                0,
+                heartbeatInterval.toMillis(),
+                TimeUnit.MILLISECONDS);
+    }
+    public void sendHeartbeats() {
+        for (RaftNode peer : peers) {
+            // simple “empty append” heartbeat
+            peer.handleAppendEntries(new AppendEntriesArgs(
+                    currentTerm,
+                    id,
+                    entryLog.size() - 1,
+                    currentTerm,
+                    commitIndex,
+                    Collections.emptyList()
+            ));
+        }
     }
 
     public void startElection() {
@@ -115,11 +142,21 @@ public class RaftNode {
     public void sendHeartbeat() {
         log.info("Node {} is sending heartbeat to peers", id);
         for (RaftNode peer : peers) {
-            peer.handleAppendEntries(currentTerm, id);
+            peer.handleAppendEntries(new AppendEntriesArgs(
+                    currentTerm,
+                    id,
+          entryLog.size() - 1,
+                    currentTerm,
+                    commitIndex,
+                    Collections.emptyList()
+            ));
         }
     }
 
-    private void handleAppendEntries(int currentTerm, int id) {
-
+    private void handleAppendEntries(AppendEntriesArgs args) {
+        /*
+        Implement an append entries result class later
+        and implement this later
+         */
     }
 }
